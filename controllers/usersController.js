@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 // @access Private
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find().select("-password").lean();
-  if (!users) {
+  if (!users?.length) {
     return res.status(400).json({ message: "No user found." });
   }
   res.json(users);
@@ -92,6 +92,33 @@ const updateUser = asyncHandler(async (req, res) => {
 // @desc Delete A User
 // @route DELETE /users
 // @access Private
-const deleteUser = asyncHandler(async (req, res) => {});
+const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.body;
+
+  // Confirm if ID was provided
+  if (!id) {
+    return res.status(400).json({ message: "User ID required." });
+  }
+
+  //   Confirm if  ID has any notes assigned to it or not
+  const notes = await Note.findOne({ user: id }).lean().exec();
+  if (notes?.length) {
+    return res
+      .status(400)
+      .json({ message: "This user has notes assigned to them." });
+  }
+
+  //   Confirm if an user with this ID exists or not
+  const user = await User.findById(id).exec();
+  if (!user) {
+    return res.status(400).json({ message: "User not found." });
+  }
+
+  //   Once all of the above is confirmed, we can finally delete the user.
+  const result = await user.deleteOne();
+  const reply = `User ${result.username} with ID ${result._id} successfully deleted.`;
+
+  res.json(reply);
+});
 
 module.exports = { getAllUsers, createNewUser, updateUser, deleteUser };

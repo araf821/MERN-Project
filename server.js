@@ -7,12 +7,12 @@ const { errorHandler } = require("./middleware/errorHandler");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
-const mongoConnection = require("./config/DBConnections");
 const mongoose = require("mongoose");
+const connectDb = require("./config/dbConn.js");
 const { hostname } = require("os");
 const PORT = process.env.PORT || 3500;
 
-mongoConnection();
+connectDb();
 
 app.use(logger);
 
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 app.use("/", require("./routes/root"));
-app.use("/users", require("./routes/userRoutes"))
+app.use("/users", require("./routes/userRoutes.js"));
 
 app.all("*", (req, res) => {
   res.status(404);
