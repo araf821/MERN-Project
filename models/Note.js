@@ -9,7 +9,7 @@ const noteSchema = new mongoose.Schema(
       ref: "User",
     },
     title: { type: String, required: true },
-    body: { type: String, required: true },
+    text: { type: String, required: true },
     completed: { type: Boolean, default: false },
   },
   { timeStamps: true }
